@@ -3,6 +3,7 @@ const Recipe = require("../db").import("../models/recipe");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 let validateSession = require("../middleware/validate-session");
+let sequelize = require("../db");
 
 //Create Log (good)
 
@@ -40,7 +41,7 @@ router.get("/get", (req, res) => {
       .catch((err) => res.status(500).json({ error: err }));
   });
 
-  //GET ENTRIES BY TITLE
+  //GET ENTRIES BY TITLE //Get rid of if get keyword working
   router.get("/:title", validateSession, (req, res) => {
       let title = req.params.title;
 
@@ -53,12 +54,26 @@ router.get("/get", (req, res) => {
 
   //GET ENTRIES BY KEYWORD - STILL WORKING ON!!
   router.get("/search/:keyword", validateSession, (req, res) => {
-      let keyword = req.params.title;
+      let keyword = req.params.keyword;
+      let owner = req.user.id;
+      let recipeTitle = req.body.recipe.recipeName;
+  
+      sequelize.query(`select * from recipes where owner=${owner} AND ingredients like '%${keyword}%'`)
 
-      Recipe.findAll({
-          where: {}
-      })
+      .then(recipes => res.status(200).json(recipes))
+      .catch(err => res.status(500).json({error: err }))
   })
+
+  //GET ENTRIES BY CATEGORY
+  router.get("/search/cat/:category", validateSession, (req, res) => {
+    let targetCategory = req.params.category;
+
+    Recipe.findAll({
+        where: {category: targetCategory}
+    })
+    .then(recipes => res.status(200).json(recipes))
+    .catch(err => res.status(500).json({error: err }))
+})
   
   //UPDATING ENTRY// PUT METHOD
   router.put("/update/:id", validateSession, function (req, res) {
