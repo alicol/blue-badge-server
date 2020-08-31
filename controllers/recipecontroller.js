@@ -56,7 +56,7 @@ router.get("/get", (req, res) => {
   router.get("/search/:keyword", validateSession, (req, res) => {
       let keyword = req.params.keyword;
       let owner = req.user.id;
-      let recipeTitle = req.body.recipe.recipeName;
+      // let recipeTitle = req.body.recipe.recipeName;
   
       sequelize.query(`select * from recipes where owner=${owner} AND ingredients like '%${keyword}%'`)
 
